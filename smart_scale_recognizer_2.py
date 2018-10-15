@@ -119,7 +119,7 @@ graph_def = graph.as_graph_def()
 tf.graph_util.remove_training_nodes(graph_def)
 # tf.contrib.quantize.create_eval_graph(graph)
 # tf.contrib.quantize.create_training_graph()
-output_node_names = [OUTPUT_NODE]
+output_node_names = ['predictions/Softmax']
 freezen_graph_def = tf.graph_util.convert_variables_to_constants(
     sess, graph_def, output_node_names)
 # save graph:       
