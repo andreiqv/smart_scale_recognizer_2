@@ -1,7 +1,7 @@
 import tensorflow as tf
 from tensorflow import keras
-#from tensorflow.keras.applications.inception_resnet_v2 import InceptionResNetV2
-from keras.applications.inception_resnet_v2 import InceptionResNetV2
+from tensorflow.keras.applications.inception_resnet_v2 import InceptionResNetV2
+#from keras.applications.inception_resnet_v2 import InceptionResNetV2
 #from dataset_factory import GoodsDataset
 import numpy as np
 
@@ -70,6 +70,7 @@ input_tensor = keras.layers.Input(shape=(IMAGE_SIZE[0], IMAGE_SIZE[1], 3))
 #              metrics=['accuracy'])
 
 model = keras.models.load_model('checkpoints/se_recognizer131018.36-2.80.hdf5')
+#model = keras.models.load_model('checkpoints/se_recognizer131018.40-2.64.hdf5')
 
 print(model.summary())
 # K.utils.print_summary(model, line_length=None, positions=None, print_fn=None)
@@ -94,8 +95,8 @@ model.fit(goods_dataset.get_train_dataset(),
           validation_steps=70)
 """
 
-session = keras.backend.get_session()
-gr = session.graph.as_graph_def()
+sess = keras.backend.get_session()
+gr = sess.graph.as_graph_def()
 # for n in gr.node:
 #     print(n.name)
 
@@ -107,3 +108,21 @@ gr = session.graph.as_graph_def()
 frozen_graph = freeze_session(keras.backend.get_session(), output_names=[out.op.name for out in model.outputs])
 
 tf.train.write_graph(frozen_graph, OUTPUT_FOLDER, OUTPUT_MODEL_NAME + ".pb", as_text=False)
+
+
+# SAVE GRAPH TO PB
+graph = sess.graph 
+graph_def = graph.as_graph_def() 
+# for n in graph_def.node:
+#     print(n.name)
+
+tf.graph_util.remove_training_nodes(graph_def)
+# tf.contrib.quantize.create_eval_graph(graph)
+# tf.contrib.quantize.create_training_graph()
+output_node_names = [OUTPUT_NODE]
+freezen_graph_def = tf.graph_util.convert_variables_to_constants(
+    sess, graph_def, output_node_names)
+# save graph:       
+dir_for_model = '.'
+tf.train.write_graph(freezen_graph_def, dir_for_model, PB_FILE_NAME, as_text=False)  
+
