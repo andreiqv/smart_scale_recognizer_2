@@ -116,6 +116,7 @@ graph_def = graph.as_graph_def()
 # for n in graph_def.node:
 #     print(n.name)
 
+"""
 for node in graph_def.node:
   if node.op == 'RefSwitch':
     node.op = 'Switch'
@@ -125,6 +126,7 @@ for node in graph_def.node:
   elif node.op == 'AssignSub':
     node.op = 'Sub'
     if 'use_locking' in node.attr: del node.attr['use_locking']
+"""
 
 tf.graph_util.remove_training_nodes(graph_def)
 # tf.contrib.quantize.create_eval_graph(graph)
