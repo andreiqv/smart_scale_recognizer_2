@@ -116,13 +116,22 @@ graph_def = graph.as_graph_def()
 # for n in graph_def.node:
 #     print(n.name)
 
+for node in graph_def.node:
+  if node.op == 'RefSwitch':
+    node.op = 'Switch'
+    for index in xrange(len(node.input)):
+      if 'moving_' in node.input[index]:
+        node.input[index] = node.input[index] + '/read'
+  elif node.op == 'AssignSub':
+    node.op = 'Sub'
+    if 'use_locking' in node.attr: del node.attr['use_locking']
+
 tf.graph_util.remove_training_nodes(graph_def)
 # tf.contrib.quantize.create_eval_graph(graph)
 # tf.contrib.quantize.create_training_graph()
 output_node_names = ['predictions/Softmax']
-freezen_graph_def = tf.graph_util.convert_variables_to_constants(
-    sess, graph_def, output_node_names)
+freezen_graph_def = tf.graph_util.convert_variables_to_constants(sess, graph_def, output_node_names)
 # save graph:       
 dir_for_model = '.'
-tf.train.write_graph(freezen_graph_def, dir_for_model, PB_FILE_NAME, as_text=False)  
+tf.train.write_graph(freezen_graph_def, dir_for_model, 'saved_model.pb', as_text=False)  
 
